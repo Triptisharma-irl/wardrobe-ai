@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Wardrobe — AI closet assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EEE9;
+    --panel: #FAF9F6;
+    --ink: #181817;
+    --ink-soft: #66645F;
+    --line: #DAD7CF;
+    --cobalt: #2B3FD4;
+    --cobalt-soft: #E4E7FA;
+    --danger: #B3362B;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header { margin-bottom: 36px; }
+  h1 {
+    font-family: "Instrument Serif", serif;
+    font-weight: 400;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1;
+    margin: 0 0 12px;
+  }
+  h1 em { color: var(--cobalt); }
+  header p { margin: 0; color: var(--ink-soft); max-width: 52ch; line-height: 1.55; }
+
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  h2 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 28px; margin: 0 0 16px; }
+
+  /* Upload */
+  .drop {
+    border: 1.5px dashed var(--line);
+    border-radius: 6px;
+    padding: 28px;
+    text-align: center;
+    color: var(--ink-soft);
+    cursor: pointer;
+    background: var(--panel);
+    margin-bottom: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .drop:hover, .drop.over { border-color: var(--cobalt); background: var(--cobalt-soft); }
+  .drop strong { color: var(--ink); }
+  #fileInput { display: none; }
+  #uploadStatus { font-size: 13px; color: var(--ink-soft); min-height: 20px; margin-bottom: 20px; }
+  #uploadStatus.error { color: var(--danger); }
+
+  /* Filters */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .chip {
+    border: 1px solid var(--line);
+    background: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+  .item { position: relative; }
+  .item img {
+    width: 100%; aspect-ratio: 3/4; object-fit: cover;
+    border-radius: 4px; background: var(--line); display: block;
+  }
+  .item .name { font-size: 14px; font-weight: 500; margin-top: 8px; }
+  .item .meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .item .del {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(24,24,23,.7); color: #fff; border: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    cursor: pointer; font-size: 14px; line-height: 1; opacity: 0;
+    transition: opacity .15s;
+  }
+  .item:hover .del { opacity: 1; }
+  @media (hover: none) { .item .del { opacity: 1; } }
+  .empty { color: var(--ink-soft); padding: 40px 0; line-height: 1.6; }
+
+  /* Stylist panel */
+  .stylist {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+    position: sticky;
+    top: 24px;
+  }
+  label { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; }
+  select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 4px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--ink);
+  }
+  #suggestBtn {
+    width: 100%; margin-top: 20px; padding: 13px;
+    background: var(--cobalt); color: #fff; border: none; border-radius: 4px;
+    font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer;
+  }
+  #suggestBtn:hover { background: #2233B3; }
+  #suggestBtn:disabled { background: var(--line); color: var(--ink-soft); cursor: not-allowed; }
+  #suggestStatus { font-size: 13px; color: var(--ink-soft); margin-top: 12px; min-height: 18px; }
+  #suggestStatus.error { color: var(--danger); }
+
+  .outfit { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 18px; }
+  .outfit h3 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 21px; margin: 0 0 4px; }
+  .outfit p { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; line-height: 1.5; }
+  .outfit .thumbs { display: flex; gap: 8px; }
+  .outfit .thumbs img { width: 64px; aspect-ratio: 3/4; object-fit: cover; border-radius: 3px; }
+
+  .spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid var(--line); border-top-color: var(--cobalt);
+    border-radius: 50%; animation: spin .8s linear infinite;
+    vertical-align: -2px; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer { margin-top: 64px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Your closet, <em>catalogued</em> by AI.</h1>
+    <p>Photograph a piece of clothing and it gets tagged automatically. Then ask for an outfit — built only from what you actually own.</p>
+  </header>
+
+  <div class="layout">
+    <main>
+      <h2>Wardrobe</h2>
+      <label class="drop" id="drop" for="fileInput">
+        <strong>Add clothing photos</strong><br>
+        Click to choose, or drag images here
+      </label>
+      <input type="file" id="fileInput" accept="image/*" multiple />
+      <div id="uploadStatus"></div>
+
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="grid"></div>
+    </main>
+
+    <aside class="stylist">
+      <h2>What should I wear?</h2>
+      <label for="occasion">Occasion</label>
+      <select id="occasion">
+        <option>everyday</option><option>work</option><option>party</option>
+        <option>formal</option><option>workout</option><option>travel</option>
+      </select>
+      <label for="weather">Weather</label>
+      <select id="weather">
+        <option>mild</option><option>hot</option><option>cold</option><option>rainy</option>
+      </select>
+      <button id="suggestBtn">Suggest outfits</button>
+      <div id="suggestStatus"></div>
+      <div id="outfits"></div>
+    </aside>
+  </div>
+
+  <footer>
+    Photos stay in your browser (local storage); only the image being tagged is sent to the AI.<br>
+    Independent implementation, inspired by the open-source project
+    <a href="https://github.com/Anyesh/wardrowbe">wardrowbe</a> (MIT). Built by Tripti Sharma.
+  </footer>
+</div>
+
+<script>
+  const KEY = 'wardrobe_items_v1';
+  const fileInput = document.getElementById('fileInput');
+  const drop = document.getElementById('drop');
+  const uploadStatus = document.getElementById('uploadStatus');
+  const grid = document.getElementById('grid');
+  const filtersEl = document.getElementById('filters');
+  const suggestBtn = document.getElementById('suggestBtn');
+  const suggestStatus = document.getElementById('suggestStatus');
+  const outfitsEl = document.getElementById('outfits');
+
+  let items = [];
+  try { items = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { items = []; }
+  let activeFilter = 'all';
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); }
+    catch (e) { setUpload('Storage is full — delete a few items to add more.', true); }
+  }
+  function setUpload(msg, isError, html) {
+    uploadStatus.className = isError ? 'error' : '';
+    if (html) uploadStatus.innerHTML = msg; else uploadStatus.textContent = msg;
+  }
+
+  // ---- image helpers ----
+  function loadImage(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+  function resizeToDataUrl(img, maxSide, quality) {
+    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
+  // ---- upload + AI tagging ----
+  async function handleFiles(fileList) {
+    const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    for (let i = 0; i < files.length; i++) {
+      setUpload(`Analyzing photo ${i + 1} of ${files.length}…`, false);
+      uploadStatus.innerHTML = '<span class="spinner"></span>' + uploadStatus.textContent;
+      try {
+        const img = await loadImage(files[i]);
+        const forApi = resizeToDataUrl(img, 800, 0.8).split(',')[1];
+        const thumb = resizeToDataUrl(img, 320, 0.7);
+
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: forApi, mime: 'image/jpeg' }),
+        });
+        const tags = await res.json();
+        if (!res.ok) throw new Error(tags.error || 'Could not analyze this photo.');
+
+        items.unshift({
+          id: 'i' + Date.now() + Math.random().toString(36).slice(2, 6),
+          thumb,
+          name: tags.name || 'Clothing item',
+          category: tags.category || 'top',
+          color: tags.color || '',
+          style: tags.style || '',
+          season: tags.season || '',
+          occasions: Array.isArray(tags.occasions) ? tags.occasions : [],
+        });
+        save();
+        render();
+      } catch (err) {
+        setUpload(err.message, true);
+        return;
+      }
+    }
+    setUpload('Done — added to your wardrobe.', false);
+  }
+
+  fileInput.addEventListener('change', e => { handleFiles(e.target.files); fileInput.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+
+  // ---- render ----
+  function render() {
+    const cats = ['all', ...new Set(items.map(i => i.category))];
+    filtersEl.innerHTML = '';
+    cats.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'chip' + (c === activeFilter ? ' active' : '');
+      b.textContent = c;
+      b.onclick = () => { activeFilter = c; render(); };
+      filtersEl.appendChild(b);
+    });
+
+    grid.innerHTML = '';
+    const shown = items.filter(i => activeFilter === 'all' || i.category === activeFilter);
+    if (!shown.length) {
+      const d = document.createElement('div');
+      d.className = 'empty';
+      d.textContent = items.length
+        ? 'Nothing in this category yet.'
+        : 'Your wardrobe is empty. Add a few clothing photos to get started.';
+      grid.appendChild(d);
+    }
+    shown.forEach(it => {
+      const el = document.createElement('div');
+      el.className = 'item';
+      const img = document.createElement('img');
+      img.src = it.thumb; img.alt = it.name;
+      const del = document.createElement('button');
+      del.className = 'del'; del.textContent = '×'; del.title = 'Remove';
+      del.onclick = () => { items = items.filter(x => x.id !== it.id); save(); render(); };
+      const name = document.createElement('div');
+      name.className = 'name'; name.textContent = it.name;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = [it.color, it.style, it.season].filter(Boolean).join(' · ');
+      el.append(img, del, name, meta);
+      grid.appendChild(el);
+    });
+    suggestBtn.disabled = items.length < 2;
+  }
+
+  // ---- outfit suggestions ----
+  suggestBtn.addEventListener('click', async () => {
+    suggestStatus.className = '';
+    suggestStatus.innerHTML = '<span class="spinner"></span>Styling your outfits…';
+    outfitsEl.innerHTML = '';
+    suggestBtn.disabled = true;
+    try {
+      const payload = {
+        occasion: document.getElementById('occasion').value,
+        weather: document.getElementById('weather').value,
+        items: items.map(({ id, name, category, color, style, season, occasions }) =>
+          ({ id, name, category, color, style, season, occasions })),
+      };
+      const res = await fetch('/api/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not get suggestions.');
+
+      const outfits = data.outfits || [];
+      if (!outfits.length) {
+        suggestStatus.textContent = 'Not enough variety yet to build an outfit — add a few more pieces (a top, a bottom, shoes).';
+        return;
+      }
+      suggestStatus.textContent = '';
+      outfits.forEach(o => {
+        const box = document.createElement('div');
+        box.className = 'outfit';
+        const h = document.createElement('h3'); h.textContent = o.title || 'Outfit';
+        const p = document.createElement('p'); p.textContent = o.why || '';
+        const thumbs = document.createElement('div'); thumbs.className = 'thumbs';
+        (o.item_ids || []).forEach(id => {
+          const it = items.find(x => x.id === id);
+          if (!it) return;
+          const im = document.createElement('img');
+          im.src = it.thumb; im.alt = it.name; im.title = it.name;
+          thumbs.appendChild(im);
+        });
+        box.append(h, p, thumbs);
+        outfitsEl.appendChild(box);
+      });
+    } catch (err) {
+      suggestStatus.className = 'error';
+      suggestStatus.textContent = err.message;
+    } finally {
+      suggestBtn.disabled = items.length < 2;
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>
