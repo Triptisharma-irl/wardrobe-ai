@@ -139,6 +139,82 @@
 
   footer { margin-top: 64px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
   footer a { color: var(--ink-soft); }
+
+/* ===== Wardrobe AI bottom navigation ===== */
+:root {
+  --accent: #a52a4a;
+  --accent-light: #f8e9ed;
+}
+
+body {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(250, 249, 246, 0.97);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.bottom-nav button .nav-icon {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.bottom-nav button.active {
+  color: var(--accent);
+  background: var(--accent-light);
+  font-weight: 600;
+}
+
+.page-panel {
+  display: none;
+}
+
+.page-panel.active {
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(620px, calc(100% - 32px));
+    bottom: 18px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+  }
+
+  body {
+    padding-bottom: 120px;
+  }
+}
 </style>
 </head>
 <body>
@@ -185,7 +261,54 @@
     Independent implementation, inspired by the open-source project
     <a href="https://github.com/Anyesh/wardrowbe">wardrowbe</a> (MIT). Built by Tripti Sharma.
   </footer>
+
+  <button class="active" data-page="home">
+    <span class="nav-icon">⌂</span>
+    <span>Home</span>
+  </button>
+  <button data-page="wardrobe">
+    <span class="nav-icon">▦</span>
+    <span>Wardrobe</span>
+  </button>
+  <button data-page="stylist">
+    <span class="nav-icon">✳</span>
+    <span>AI Stylist</span>
+  </button>
+  <button data-page="planner">
+    <span class="nav-icon">▣</span>
+    <span>Planner</span>
+  </button>
+  <button data-page="profile">
+    <span class="nav-icon">♡</span>
+    <span>Profile</span>
+  </button>
+</nav>
 </div>
+  </footer>
+</div>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="active" data-page="home">
+    <span class="nav-icon">⌂</span>
+    <span>Home</span>
+  </button>
+  <button data-page="wardrobe">
+    <span class="nav-icon">▦</span>
+    <span>Wardrobe</span>
+  </button>
+  <button data-page="stylist">
+    <span class="nav-icon">✳</span>
+    <span>AI Stylist</span>
+  </button>
+  <button data-page="planner">
+    <span class="nav-icon">▣</span>
+    <span>Planner</span>
+  </button>
+  <button data-page="profile">
+    <span class="nav-icon">♡</span>
+    <span>Profile</span>
+  </button>
+</nav>
 
 <script>
   const KEY = 'wardrobe_items_v1';
@@ -364,6 +487,30 @@
     } finally {
       suggestBtn.disabled = items.length < 2;
     }
+  });
+
+  // ===== Bottom navigation =====
+  const navButtons = document.querySelectorAll('.bottom-nav button');
+
+  navButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      navButtons.forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+
+      const page = button.dataset.page;
+
+      if (page === 'wardrobe') {
+        document.querySelector('.layout').scrollIntoView({ behavior: 'smooth' });
+      } else if (page === 'stylist') {
+        document.querySelector('.stylist').scrollIntoView({ behavior: 'smooth' });
+      } else if (page === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (page === 'planner') {
+        alert('Planner page — coming next!');
+      } else if (page === 'profile') {
+        alert('Profile page — coming next!');
+      }
+    });
   });
 
   render();
