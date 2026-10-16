@@ -30,7 +30,9 @@ class handler(BaseHTTPRequestHandler):
                 return self._send(500, {"error": "Server is missing GEMINI_API_KEY."})
 
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
+            model = genai.GenerativeModel("
+model = genai.GenerativeModel("gemini-3.8-flash")
+")
             response = model.generate_content(
                 [PROMPT, {"mime_type": mime, "data": base64.b64decode(image_b64)}],
                 generation_config={"response_mime_type": "application/json"},
