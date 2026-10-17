@@ -29,7 +29,6 @@ class handler(BaseHTTPRequestHandler):
                 return self._send(500, {"error": "Server is missing GEMINI_API_KEY."})
 
             genai.configure(api_key=api_key)
-           model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM)
 model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM)
                 f"Occasion: {occasion}\nWeather: {weather}\n"
                 f"Wardrobe items:\n{json.dumps(items)}"
