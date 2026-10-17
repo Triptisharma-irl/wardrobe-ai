@@ -32,7 +32,7 @@ class handler(BaseHTTPRequestHandler):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("
 model = genai.GenerativeModel("gemini-3.8-flash")
-")
+
             response = model.generate_content(
                 [PROMPT, {"mime_type": mime, "data": base64.b64decode(image_b64)}],
                 generation_config={"response_mime_type": "application/json"},
