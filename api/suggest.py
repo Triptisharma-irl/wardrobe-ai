@@ -1,3 +1,4 @@
+
 import os
 import json
 from http.server import BaseHTTPRequestHandler
@@ -17,6 +18,7 @@ class handler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length))
+
             items = body.get("items", [])
             occasion = body.get("occasion", "everyday")
             weather = body.get("weather", "mild")
@@ -26,27 +28,31 @@ class handler(BaseHTTPRequestHandler):
 
             api_key = os.environ.get("GEMINI_API_KEY")
             if not api_key:
-                return self._send(500, {"error": "Server is missing GEMINI_API_KEY."})
+                return self._send(
+                    500, {"error": "Server is missing GEMINI_API_KEY."}
+                )
 
-           
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM)
-prompt = (
-    f"Occasion: {occasion}\nWeather: {weather}\n"
-    f"Wardrobe items:\n{json.dumps(items)}"
-)
-response = model.generate_content(
-    prompt, generation_config={"response_mime_type": "application/json"}
-)
-self._send(200, json.loads(response.text))
-
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel(
+                "gemini-3.8-flash",
+                system_instruction=SYSTEM
             )
+
+            prompt = (
+                f"Occasion: {occasion}\n"
+                f"Weather: {weather}\n"
+                f"Wardrobe items:\n{json.dumps(items)}"
+            )
+
             response = model.generate_content(
-                prompt, generation_config={"response_mime_type": "application/json"}
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
             )
-            self._send(200, json.loads(response.text))
+
+            return self._send(200, json.loads(response.text))
+
         except Exception as e:
-            self._send(500, {"error": str(e)})
+            return self._send(500, {"error": str(e)})
 
     def _send(self, status, payload):
         self.send_response(status)
