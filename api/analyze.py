@@ -1,3 +1,4 @@
+
 import os
 import json
 import base64
@@ -5,7 +6,7 @@ from http.server import BaseHTTPRequestHandler
 import google.generativeai as genai
 
 PROMPT = """Analyze this clothing item photo and return JSON with exactly these keys:
-- name: short descriptive name, e.g. "Navy denim jacket"
+- name: short descriptive name
 - category: one of "top", "bottom", "outerwear", "dress", "shoes", "accessory"
 - color: the main color as a simple word
 - style: one of "casual", "formal", "sporty", "streetwear", "ethnic", "party"
@@ -30,7 +31,7 @@ class handler(BaseHTTPRequestHandler):
                 return self._send(500, {"error": "Server is missing GEMINI_API_KEY."})
 
             genai.configure(api_key=api_key)
-           model = genai.GenerativeModel("gemini-3.8-flash")
+            model = genai.GenerativeModel("gemini-3.8-flash")
 
             response = model.generate_content(
                 [PROMPT, {"mime_type": mime, "data": base64.b64decode(image_b64)}],
