@@ -28,10 +28,18 @@ class handler(BaseHTTPRequestHandler):
             if not api_key:
                 return self._send(500, {"error": "Server is missing GEMINI_API_KEY."})
 
-            genai.configure(api_key=api_key)
+           
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM)
-                f"Occasion: {occasion}\nWeather: {weather}\n"
-                f"Wardrobe items:\n{json.dumps(items)}"
+prompt = (
+    f"Occasion: {occasion}\nWeather: {weather}\n"
+    f"Wardrobe items:\n{json.dumps(items)}"
+)
+response = model.generate_content(
+    prompt, generation_config={"response_mime_type": "application/json"}
+)
+self._send(200, json.loads(response.text))
+
             )
             response = model.generate_content(
                 prompt, generation_config={"response_mime_type": "application/json"}
