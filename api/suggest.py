@@ -30,7 +30,7 @@ class handler(BaseHTTPRequestHandler):
 
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel(
-                "gemini-2.5-flash",
+               "gemini-3.8-flash",
                 system_instruction=SYSTEM
             )
 
