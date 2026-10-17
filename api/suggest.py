@@ -31,7 +31,6 @@ class handler(BaseHTTPRequestHandler):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("
 model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM)
-            prompt = (
                 f"Occasion: {occasion}\nWeather: {weather}\n"
                 f"Wardrobe items:\n{json.dumps(items)}"
             )
