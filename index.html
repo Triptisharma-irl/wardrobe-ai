@@ -1,352 +1,148 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wardrobe AI — Your personal style edit</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F7F3ED;--panel:#FFFCF8;--ink:#29221F;--muted:#80736B;--line:#E6DCD2;--wine:#70283D;--wine-light:#F2E5E8;--gold:#B18A55;--green:#66765B;--radius:18px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",sans-serif;padding-bottom:105px;-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.wrap{max-width:1180px;margin:auto;padding:24px 22px 40px}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 0 26px;border-bottom:1px solid var(--line);margin-bottom:30px}
-.brand{font-family:"Instrument Serif",serif;font-size:29px;color:var(--wine);letter-spacing:-.5px}
-.brand small{display:block;font:10px "DM Sans",sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:1px}
-.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--wine);font-weight:700}
-h1,h2,h3,p{margin-top:0}
-h1,h2,h3{font-family:"Instrument Serif",serif;font-weight:400}
-h1{font-size:clamp(42px,7vw,72px);line-height:.98;letter-spacing:-1.5px;margin:12px 0 16px}
-h1 em{color:var(--wine);font-weight:400}
-h2{font-size:35px;margin-bottom:9px}
-h3{font-size:25px;margin-bottom:8px}
-p{line-height:1.65}
-.muted{color:var(--muted)}
-.page{display:none;animation:fade .22s ease}
-.page.active{display:block}
-@keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
-.hero{background:#EDE2D6;border-radius:24px;padding:clamp(24px,5vw,54px);position:relative;overflow:hidden;min-height:275px;display:flex;align-items:center}
-.hero-copy{max-width:570px;position:relative;z-index:1}
-.hero p{max-width:420px;color:#65554D}
-.hero-mark{position:absolute;right:-15px;bottom:-75px;width:280px;height:280px;border:1px solid #D6C4B3;border-radius:50%;display:grid;place-items:center;color:#B99F8A;font-family:"Instrument Serif",serif;font-size:90px}
-.btn{border:0;border-radius:30px;padding:13px 20px;background:var(--wine);color:white;font-weight:600;font-size:13px;transition:transform .18s,background .18s}
-.btn:hover{background:#512030;transform:translateY(-1px)}
-.btn.secondary{background:transparent;border:1px solid var(--line);color:var(--wine)}
-.btn.light{background:#fff8f1;color:var(--wine)}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:32px 0 17px}
-.section-head h2{margin:0}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0 30px}
-.stat{background:var(--panel);border:1px solid var(--line);padding:19px;border-radius:var(--radius)}
-.stat strong{display:block;font-family:"Instrument Serif",serif;font-size:34px;color:var(--wine);font-weight:400}
-.stat span{font-size:11px;color:var(--muted)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
-.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.quick{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:left;color:var(--ink);min-height:118px}
-.quick .symbol{font-size:24px;color:var(--wine);display:block;margin-bottom:14px}
-.quick strong{display:block;font-size:14px;margin-bottom:5px}
-.quick span:last-child{font-size:12px;color:var(--muted)}
-.upload{display:block;border:1.5px dashed #C9B5A7;border-radius:var(--radius);padding:23px;text-align:center;background:var(--panel);cursor:pointer;margin:20px 0 8px}
-.upload strong{color:var(--wine)}
-#fileInput{display:none}
-#uploadStatus,#suggestStatus{font-size:13px;color:var(--muted);min-height:20px;margin:10px 0}
-.error{color:#B3362B!important}
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
-.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:8px 14px;border-radius:24px;font-size:12px}
-.chip.active{background:var(--wine);color:white;border-color:var(--wine)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:17px}
-.item{position:relative;min-width:0}
-.item img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:13px;background:#E9DFD5;display:block}
-.item .name{font-size:13px;font-weight:600;margin-top:9px}
-.item .meta{font-size:11px;color:var(--muted);margin-top:4px}
-.item .del{position:absolute;top:8px;right:8px;background:#fff;color:var(--wine);border:0;width:29px;height:29px;border-radius:50%;font-size:19px}
-.empty{grid-column:1/-1;padding:30px 16px;text-align:center;color:var(--muted);background:var(--panel);border-radius:var(--radius);line-height:1.7}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-label.field{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}
-select,input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fffdf9;color:var(--ink);outline-color:var(--wine)}
-.field-wrap{margin-bottom:16px}
-#suggestBtn{width:100%;margin-top:6px}
-.outfit{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
-.outfit h3{font-size:25px}
-.outfit p{font-size:13px;color:var(--muted)}
-.thumbs{display:flex;gap:8px;flex-wrap:wrap}
-.thumbs img{width:66px;aspect-ratio:3/4;object-fit:cover;border-radius:9px}
-.planner-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.planner-list{display:grid;gap:10px;margin-top:20px}
-.plan-entry{display:flex;align-items:start;justify-content:space-between;gap:12px;background:var(--panel);border:1px solid var(--line);padding:16px;border-radius:14px}
-.plan-entry strong{display:block;font-size:14px}
-.plan-entry small{display:block;color:var(--muted);margin-top:5px;line-height:1.5}
-.delete-plan{border:0;background:var(--wine-light);color:var(--wine);border-radius:20px;padding:7px 10px}
-.profile-head{display:flex;align-items:center;gap:18px;margin:22px 0}
-.avatar{width:72px;height:72px;border-radius:50%;background:var(--wine-light);display:grid;place-items:center;color:var(--wine);font-family:"Instrument Serif",serif;font-size:36px;flex-shrink:0}
-.preference-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 22px}
-.preference{border:1px solid var(--line);border-radius:22px;padding:9px 13px;font-size:12px;background:var(--panel)}
-.preference.selected{background:var(--wine-light);border-color:#D8B9C2;color:var(--wine)}
-.bottom-nav{position:fixed;z-index:1000;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:9px 8px calc(9px + env(safe-area-inset-bottom,0px));background:rgba(255,252,248,.96);border-top:1px solid var(--line);backdrop-filter:blur(18px)}
-.bottom-nav button{border:0;background:transparent;border-radius:13px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;font-size:10px}
-.bottom-nav .nav-icon{font-size:20px;line-height:1.1}
-.bottom-nav button.active{color:var(--wine);background:var(--wine-light);font-weight:700}
-footer{text-align:center;font-size:11px;color:var(--muted);padding:28px 0 0;line-height:1.8}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--wine);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(min-width:900px){.bottom-nav{left:50%;right:auto;transform:translateX(-50%);bottom:18px;width:min(620px,calc(100% - 32px));border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 32px #39241b14}.wrap{padding-top:30px}}
-@media(max-width:560px){.wrap{padding:16px 15px 30px}.topbar{margin-bottom:22px}.hero-mark{right:-100px;opacity:.6}.hero-copy{max-width:90%}.stats{gap:8px}.stat{padding:14px 11px}.stat strong{font-size:29px}.stat span{font-size:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.card{padding:17px}.form-grid,.planner-form{grid-template-columns:1fr}.section-head{align-items:start}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">wardrobe ai<small>YOUR PERSONAL STYLE EDIT</small></div>
-    <div class="eyebrow">THE DAILY EDIT</div>
-  </div>
-
-  <main>
-    <section class="page active" id="page-home">
-      <div class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow">A CLOSET, REIMAGINED</div>
-          <h1>Your style.<br><em>Your story.</em></h1>
-          <p>Make more of what you own. Discover new combinations and find a little inspiration in your everyday wardrobe.</p>
-          <button class="btn" data-go="wardrobe">Explore my wardrobe ↗</button>
-        </div>
-        <div class="hero-mark" aria-hidden="true">W.</div>
-      </div>
-      <div class="stats">
-        <div class="stat"><strong id="homeCount">0</strong><span>Pieces in your closet</span></div>
-        <div class="stat"><strong id="homeCategories">0</strong><span>Categories discovered</span></div>
-        <div class="stat"><strong id="homePlans">0</strong><span>Outfits planned</span></div>
-      </div>
-      <div class="section-head"><div><div class="eyebrow">YOUR SPACE</div><h2>What shall we do today?</h2></div></div>
-      <div class="quick-grid">
-        <button class="quick" data-go="wardrobe"><span class="symbol">＋</span><strong>Curate your closet</strong><span>Add and organise your pieces</span></button>
-        <button class="quick" data-go="stylist"><span class="symbol">✳</span><strong>Meet your AI stylist</strong><span>Find looks from clothes you own</span></button>
-        <button class="quick" data-go="planner"><span class="symbol">▦</span><strong>Plan the week</strong><span>Make getting dressed easier</span></button>
-        <button class="quick" data-go="profile"><span class="symbol">♡</span><strong>Your style profile</strong><span>Make this space feel like you</span></button>
-      </div>
-      <div class="section-head"><div><div class="eyebrow">RECENT ADDITIONS</div><h2>Fresh in your closet</h2></div><button class="btn secondary" data-go="wardrobe">View all</button></div>
-      <div class="grid" id="recentGrid"></div>
-    </section>
-
-    <section class="page" id="page-wardrobe">
-      <div class="eyebrow">THE COLLECTION</div>
-      <h1>Your <em>wardrobe.</em></h1>
-      <p class="muted">Every piece you own, thoughtfully catalogued in one place.</p>
-      <label class="upload" id="drop" for="fileInput"><strong>＋ Add clothing photos</strong><br><span class="muted">Choose images or drag them here. AI will tag each piece.</span></label>
-      <input type="file" id="fileInput" accept="image/*" multiple>
-      <div id="uploadStatus" aria-live="polite"></div>
-      <div class="section-head"><div><div class="eyebrow">YOUR PIECES</div><h2 id="wardrobeHeading">All clothing</h2></div><span class="muted" id="wardrobeCount"></span></div>
-      <div class="filters" id="filters"></div>
-      <div class="grid" id="grid"></div>
-    </section>
-
-    <section class="page" id="page-stylist">
-      <div class="eyebrow">A LITTLE STYLE MAGIC</div>
-      <h1>Let's find your <em>look.</em></h1>
-      <p class="muted">Your personal stylist works with the clothes already in your closet — no shopping required.</p>
-      <div class="card" style="margin-top:24px">
-        <div class="eyebrow">SET THE MOOD</div><h2 style="margin-top:8px">Dress for the moment.</h2>
-        <div class="form-grid">
-          <div><label class="field" for="occasion">What's the occasion?</label><select id="occasion"><option value="everyday">Everyday</option><option value="work">Work</option><option value="party">Party</option><option value="formal">Formal</option><option value="workout">Workout</option><option value="travel">Travel</option></select></div>
-          <div><label class="field" for="weather">What's the weather?</label><select id="weather"><option value="mild">Mild</option><option value="hot">Hot</option><option value="cold">Cold</option><option value="rainy">Rainy</option></select></div>
-        </div>
-        <button class="btn" id="suggestBtn">✳ Create my outfits</button>
-        <div id="suggestStatus" aria-live="polite"></div>
-      </div>
-      <div id="outfits"></div>
-    </section>
-
-    <section class="page" id="page-planner">
-      <div class="eyebrow">AHEAD OF THE OUTFIT</div>
-      <h1>Plan your <em>week.</em></h1>
-      <p class="muted">A little planning, a lot less “what should I wear?” Save the looks and ideas you want to come back to.</p>
-      <div class="card" style="margin-top:22px">
-        <h2>Add to your plan</h2>
-        <form id="plannerForm">
-          <div class="planner-form">
-            <div><label class="field" for="planDay">Day</label><select id="planDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
-            <div><label class="field" for="planOccasion">Occasion</label><select id="planOccasion"><option>Everyday</option><option>Work</option><option>Party</option><option>Formal</option><option>Workout</option><option>Travel</option></select></div>
-          </div>
-          <div class="field-wrap"><label class="field" for="planNote">Outfit idea or notes</label><textarea id="planNote" rows="3" placeholder="e.g. Cream shirt, favourite jeans and loafers"></textarea></div>
-          <button class="btn" type="submit">Save to my week +</button>
-        </form>
-      </div>
-      <div class="section-head"><div><div class="eyebrow">YOUR LINE-UP</div><h2>Upcoming looks</h2></div><span id="planCount" class="muted">0 saved</span></div>
-      <div class="planner-list" id="plannerList"></div>
-    </section>
-
-    <section class="page" id="page-profile">
-      <div class="eyebrow">THE PERSON BEHIND THE LOOKS</div>
-      <h1>Your style, <em>your way.</em></h1>
-      <div class="profile-head"><div class="avatar" id="avatar">W</div><div><h2 id="profileGreeting" style="margin:0">Your style profile</h2><p class="muted" style="margin:4px 0">A little about your personal style.</p></div></div>
-      <div class="card">
-        <h2>Make it yours</h2>
-        <form id="profileForm">
-          <div class="field-wrap"><label class="field" for="profileName">What should we call you?</label><input id="profileName" type="text" maxlength="50" placeholder="Your name"></div>
-          <div class="field-wrap"><label class="field" for="profileStyle">Your style mood</label><select id="profileStyle"><option value="Classic">Classic & timeless</option><option value="Minimal">Minimal & effortless</option><option value="Trendy">Trendy & expressive</option><option value="Bohemian">Bohemian & relaxed</option><option value="Streetwear">Streetwear & sporty</option><option value="Elegant">Elegant & polished</option></select></div>
-          <div class="field-wrap"><span class="field">Favourite colours</span><div class="preference-list" id="colourChoices"><button class="preference" type="button" data-colour="Black">Black</button><button class="preference" type="button" data-colour="White">White</button><button class="preference" type="button" data-colour="Beige">Beige</button><button class="preference" type="button" data-colour="Blue">Blue</button><button class="preference" type="button" data-colour="Green">Green</button><button class="preference" type="button" data-colour="Red">Red</button><button class="preference" type="button" data-colour="Pink">Pink</button><button class="preference" type="button" data-colour="Brown">Brown</button></div></div>
-          <button class="btn" type="submit">Save my preferences</button>
-          <span id="profileStatus" class="muted" style="font-size:12px;margin-left:10px" aria-live="polite"></span>
-        </form>
-      </div>
-      <div class="section-head"><div><div class="eyebrow">YOUR CLOSET AT A GLANCE</div><h2>Your collection</h2></div></div>
-      <div class="stats"><div class="stat"><strong id="profileItems">0</strong><span>Clothing pieces</span></div><div class="stat"><strong id="profileCategories">0</strong><span>Categories</span></div><div class="stat"><strong id="profilePlans">0</strong><span>Planned looks</span></div></div>
-      <p class="muted" style="font-size:12px">Your clothing photos are stored in this browser. Your style preferences and outfit plans are also saved locally in this browser.</p>
-    </section>
-  </main>
-  <footer>WARDROBE AI · YOUR CLOSET, YOUR RULES<br>Photos stay in your browser; only the image being tagged is sent to the AI.</footer>
-</div>
-
-<nav class="bottom-nav" aria-label="Main navigation">
-  <button class="active" data-page="home"><span class="nav-icon">⌂</span><span>Home</span></button>
-  <button data-page="wardrobe"><span class="nav-icon">▦</span><span>Wardrobe</span></button>
-  <button data-page="stylist"><span class="nav-icon">✳</span><span>AI Stylist</span></button>
-  <button data-page="planner"><span class="nav-icon">▣</span><span>Planner</span></button>
-  <button data-page="profile"><span class="nav-icon">♡</span><span>Profile</span></button>
-</nav>
-
-<script>
-const KEY='wardrobe_items_v1';
-const PLAN_KEY='wardrobe_plans_v1';
-const PROFILE_KEY='wardrobe_profile_v1';
-const $=id=>document.getElementById(id);
-const fileInput=$('fileInput'),drop=$('drop'),uploadStatus=$('uploadStatus');
-const grid=$('grid'),filtersEl=$('filters'),suggestBtn=$('suggestBtn');
-const suggestStatus=$('suggestStatus'),outfitsEl=$('outfits');
-let items=[];
-try{items=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){items=[]}
-let activeFilter='all';
-let plans=[];
-let profile={name:'',style:'Classic',colours:[]};
-try{plans=JSON.parse(localStorage.getItem(PLAN_KEY))||[]}catch(e){plans=[]}
-try{profile={...profile,...JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}')}}catch(e){}
-
-function saveItems(){try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){setUpload('Storage is full — delete a few items to add more.',true)}}
-function setUpload(msg,error=false){uploadStatus.className=error?'error':'';uploadStatus.textContent=msg}
-function loadImage(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=reject;img.src=url})}
-function resizeToDataUrl(img,maxSide,quality){const scale=Math.min(1,maxSide/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/jpeg',quality)}
-async function handleFiles(fileList){
- const files=Array.from(fileList).filter(f=>f.type.startsWith('image/'));
- for(let i=0;i<files.length;i++){
-  setUpload(`Analysing photo ${i+1} of ${files.length}…`);
-  try{
-   const img=await loadImage(files[i]);
-   const forApi=resizeToDataUrl(img,800,.8).split(',')[1];
-   const thumb=resizeToDataUrl(img,320,.7);
-   const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:forApi,mime:'image/jpeg'})});
-   const tags=await res.json();
-   if(!res.ok)throw new Error(tags.error||'Could not analyse this photo.');
-   items.unshift({id:'i'+Date.now()+Math.random().toString(36).slice(2,6),thumb,name:tags.name||'Clothing item',category:tags.category||'top',color:tags.color||'',style:tags.style||'',season:tags.season||'',occasions:Array.isArray(tags.occasions)?tags.occasions:[]});
-   saveItems();renderAll();
-  }catch(err){setUpload(err.message,true);return}
- }
- setUpload('Done — your pieces have been added.');
+/* 🎀 WARDROBE AI — PINTEREST GIRL EDITION 🎀 */
+:root {
+  --bg: #fff5fa;
+  --panel: #ffffff;
+  --ink: #493343;
+  --muted: #987e91;
+  --line: #f2dce9;
+  --wine: #d45c96;
+  --wine-light: #ffe4f1;
+  --gold: #d9a7c4;
+  --green: #8caa9b;
+  --radius: 24px;
 }
-fileInput.addEventListener('change',e=>{handleFiles(e.target.files);fileInput.value=''});
-['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='var(--wine)'}));
-['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor=''}));
-drop.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
 
-function makeItemCard(it){
- const el=document.createElement('div');el.className='item';
- const img=document.createElement('img');img.src=it.thumb;img.alt=it.name;
- const del=document.createElement('button');del.className='del';del.textContent='×';del.title='Remove clothing item';
- del.onclick=()=>{if(confirm('Remove this piece from your wardrobe?')){items=items.filter(x=>x.id!==it.id);saveItems();renderAll()}};
- const name=document.createElement('div');name.className='name';name.textContent=it.name;
- const meta=document.createElement('div');meta.className='meta';meta.textContent=[it.color,it.style,it.season].filter(Boolean).join(' · ');
- el.append(img,del,name,meta);return el;
+body {
+  background:
+    radial-gradient(ellipse at 5% 0%, #ffe0ef 0, transparent 32%),
+    radial-gradient(ellipse at 95% 15%, #eee5ff 0, transparent 30%),
+    #fff7fb;
+  color: var(--ink);
 }
-function renderWardrobe(){
- const cats=['all',...new Set(items.map(i=>i.category).filter(Boolean))];
- filtersEl.innerHTML='';
- cats.forEach(c=>{const b=document.createElement('button');b.className='chip'+(c===activeFilter?' active':'');b.textContent=c==='all'?'All pieces':c;b.onclick=()=>{activeFilter=c;renderWardrobe()};filtersEl.appendChild(b)});
- grid.innerHTML='';
- const shown=items.filter(i=>activeFilter==='all'||i.category===activeFilter);
- $('wardrobeHeading').textContent=activeFilter==='all'?'All clothing':activeFilter.charAt(0).toUpperCase()+activeFilter.slice(1);
- $('wardrobeCount').textContent=items.length+' pieces';
- if(!shown.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=items.length?'Nothing in this category yet.':'Your wardrobe is waiting for its first pieces. Add a clothing photo above to get started.';grid.appendChild(empty)}
- shown.forEach(it=>grid.appendChild(makeItemCard(it)));
- suggestBtn.disabled=items.length<2;
-}
-function renderHome(){
- $('homeCount').textContent=items.length;
- $('homeCategories').textContent=new Set(items.map(i=>i.category).filter(Boolean)).size;
- $('homePlans').textContent=plans.length;
- const recent=$('recentGrid');recent.innerHTML='';
- if(!items.length){const e=document.createElement('div');e.className='empty';e.textContent='Your newest additions will appear here. Start by adding a clothing photo.';recent.appendChild(e)}
- else items.slice(0,4).forEach(it=>recent.appendChild(makeItemCard(it)));
-}
-function savePlans(){localStorage.setItem(PLAN_KEY,JSON.stringify(plans))}
-function renderPlans(){
- const list=$('plannerList');list.innerHTML='';
- $('planCount').textContent=plans.length+' saved';
- if(!plans.length){const e=document.createElement('div');e.className='empty';e.textContent='No plans just yet. Add your first outfit idea above to make the week your own.';list.appendChild(e)}
- plans.forEach(plan=>{
-  const row=document.createElement('div');row.className='plan-entry';
-  const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=plan.day+' · '+plan.occasion;
-  const note=document.createElement('small');note.textContent=plan.note||'Outfit idea to be decided';
-  info.append(strong,note);const del=document.createElement('button');del.className='delete-plan';del.textContent='Remove';
-  del.onclick=()=>{plans=plans.filter(p=>p.id!==plan.id);savePlans();renderAll()};
-  row.append(info,del);list.appendChild(row);
- });
-}
-$('plannerForm').addEventListener('submit',e=>{
- e.preventDefault();
- plans.push({id:Date.now().toString(),day:$('planDay').value,occasion:$('planOccasion').value,note:$('planNote').value.trim()});
- try{savePlans()}catch(err){alert('Could not save the plan in this browser.');return}
- $('planNote').value='';renderAll();
-});
-function saveProfile(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile))}
-function renderProfile(){
- $('profileName').value=profile.name||'';$('profileStyle').value=profile.style||'Classic';
- $('profileGreeting').textContent=profile.name?profile.name+"'s style profile":'Your style profile';
- $('avatar').textContent=(profile.name||'W').trim().charAt(0).toUpperCase();
- document.querySelectorAll('[data-colour]').forEach(b=>b.classList.toggle('selected',(profile.colours||[]).includes(b.dataset.colour)));
- $('profileItems').textContent=items.length;$('profileCategories').textContent=new Set(items.map(i=>i.category).filter(Boolean)).size;$('profilePlans').textContent=plans.length;
-}
-document.querySelectorAll('[data-colour]').forEach(b=>b.addEventListener('click',()=>{
- const c=b.dataset.colour;profile.colours=profile.colours||[];
- profile.colours=profile.colours.includes(c)?profile.colours.filter(x=>x!==c):[...profile.colours,c];
- b.classList.toggle('selected',profile.colours.includes(c));
-}));
-$('profileForm').addEventListener('submit',e=>{
- e.preventDefault();profile.name=$('profileName').value.trim();profile.style=$('profileStyle').value;
- try{saveProfile();renderProfile();$('profileStatus').textContent='Preferences saved ✓'}catch(err){$('profileStatus').textContent='Could not save preferences'}
-});
-function renderAll(){renderWardrobe();renderHome();renderPlans();renderProfile()}
-function showPage(page){
- document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+page));
- document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
- window.scrollTo({top:0,behavior:'smooth'});
-}
-document.querySelectorAll('.bottom-nav button[data-page], [data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page||b.dataset.go)));
 
-suggestBtn.addEventListener('click',async()=>{
- suggestStatus.className='';suggestStatus.innerHTML='<span class="spinner"></span>Putting your looks together…';outfitsEl.innerHTML='';suggestBtn.disabled=true;
- try{
-  const payload={occasion:$('occasion').value,weather:$('weather').value,items:items.map(({id,name,category,color,style,season,occasions})=>({id,name,category,color,style,season,occasions}))};
-  const res=await fetch('/api/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const data=await res.json();if(!res.ok)throw new Error(data.error||'Could not get suggestions.');
-  const outfits=data.outfits||[];
-  if(!outfits.length){suggestStatus.textContent='Add a few more pieces — a top, a bottom and shoes can help create more combinations.';return}
-  suggestStatus.textContent='';
-  outfits.forEach(o=>{
-   const box=document.createElement('div');box.className='outfit';
-   const h=document.createElement('h3');h.textContent=o.title||'Your outfit';
-   const p=document.createElement('p');p.textContent=o.why||'A look made from your own wardrobe.';
-   const thumbs=document.createElement('div');thumbs.className='thumbs';
-   (o.item_ids||[]).forEach(id=>{const it=items.find(x=>x.id===id);if(it){const im=document.createElement('img');im.src=it.thumb;im.alt=it.name;im.title=it.name;thumbs.appendChild(im)}});
-   const save=document.createElement('button');save.className='btn secondary';save.style.marginTop='12px';save.textContent='Plan this look +';
-   save.onclick=()=>{plans.push({id:Date.now().toString()+Math.random(),day:$('planDay').value,occasion:$('occasion').value,note:(o.title||'AI outfit')+': '+(o.why||'')});savePlans();renderAll();showPage('planner')};
-   box.append(h,p,thumbs,save);outfitsEl.appendChild(box);
-  });
- }catch(err){suggestStatus.className='error';suggestStatus.textContent=err.message}
- finally{suggestBtn.disabled=items.length<2}
-});
-renderAll();
-</script>
-</body>
-</html>
+.wrap { max-width: 1240px; }
+
+.brand {
+  color: #c64d8b;
+  font-size: 34px;
+}
+
+.brand small { color: #b38ca5; }
+
+.eyebrow {
+  color: #c64d8b;
+  letter-spacing: 2.5px;
+}
+
+h1 em { color: #d45c96; }
+
+.hero {
+  background: linear-gradient(125deg, #ffe1ef 0%, #f9e9ff 52%, #fff0e8 100%);
+  border: 1px solid #f6d5e8;
+  border-radius: 32px;
+  box-shadow: 0 16px 45px #d78db51a;
+}
+
+.hero-mark {
+  color: #d49ab9;
+  border-color: #e9b9d3;
+}
+
+.btn {
+  background: linear-gradient(135deg, #e779ae, #c85c98);
+  box-shadow: 0 7px 18px #d45c9626;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #d65f9c, #b94886);
+}
+
+.btn.secondary {
+  background: #fff;
+  color: #c64d8b;
+  border-color: #efc9df;
+  box-shadow: none;
+}
+
+.stat, .card, .quick {
+  border-color: #f3dce9;
+  box-shadow: 0 8px 25px #b97b9d0b;
+}
+
+.stat strong, .quick .symbol { color: #d45c96; }
+
+.quick {
+  border-radius: 24px;
+  transition: transform .22s, box-shadow .22s;
+}
+
+.quick:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px #d45c961a;
+}
+
+.upload {
+  background: #fffafd;
+  border-color: #e9a9cb;
+  border-radius: 24px;
+}
+
+.item img {
+  border-radius: 18px;
+  box-shadow: 0 5px 18px #aa739015;
+  transition: transform .25s, box-shadow .25s;
+}
+
+.item:hover img {
+  transform: translateY(-4px) rotate(-1deg);
+  box-shadow: 0 12px 25px #aa739028;
+}
+
+.chip.active {
+  background: #d45c96;
+  border-color: #d45c96;
+}
+
+select, input[type=text], textarea {
+  border-color: #f0d4e4;
+  border-radius: 15px;
+  background: #fffafd;
+}
+
+.avatar {
+  background: linear-gradient(135deg, #ffe0ef, #e9ddff);
+  color: #c64d8b;
+}
+
+.preference.selected {
+  background: #ffe4f1;
+  border-color: #e8a5ca;
+  color: #b94886;
+}
+
+.bottom-nav {
+  background: rgba(255, 249, 253, .95);
+  border-color: #f2dce9;
+  box-shadow: 0 -5px 25px #bd7ba00b;
+}
+
+.bottom-nav button.active {
+  background: linear-gradient(135deg, #ffe2f0, #f0e5ff);
+  color: #c64d8b;
+}
+
+.empty {
+  background: #fffafd;
+  border: 1px dashed #edc6dc;
+  border-radius: 24px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page.active { animation: girlyReveal .35s ease both; }
+
+  @keyframes girlyReveal {
+    from { opacity: 0; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
